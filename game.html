@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gold Miner Game</title>
+    <style>
+        body {
+            background-color: #f4e1d2;
+            text-align: center;
+            margin: 0;
+        }
+        canvas {
+            display: block;
+            margin: 0 auto;
+            background-color: #3b3a30;
+        }
+    </style>
+</head>
+<body>
+    <h1>Gold Miner Game</h1>
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+
+        // Game Variables
+        let clawX = canvas.width / 2;
+        let clawY = 50;
+        let clawAngle = 0;
+        let clawLength = 100;
+        let isReleasing = false;
+        let speed = 2;
+        let score = 0;
+        let treasures = [
+            {x: 100, y: 300, value: 50},
+            {x: 400, y: 500, value: 100},
+            {x: 600, y: 400, value: 25},
+        ];
+
+        // Draw Claw
+        function drawClaw() {
+            ctx.save();
+            ctx.translate(clawX, clawY);
+            ctx.rotate(clawAngle * Math.PI / 180);
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(0, clawLength);
+            ctx.strokeStyle = "white";
+            ctx.lineWidth = 5;
+            ctx.stroke();
+            ctx.restore();
+        }
+
+        // Draw Treasures
+        function drawTreasures() {
+            treasures.forEach(t => {
+                ctx.beginPath();
+                ctx.arc(t.x, t.y, 20, 0, Math.PI * 2);
+                ctx.fillStyle = "gold";
+                ctx.fill();
+                ctx.closePath();
+            });
+        }
+
+        // Draw Score
+        function drawScore() {
+            ctx.fillStyle = "white";
+            ctx.font = "20px Arial";
+            ctx.fillText("Score: " + score, 10, 30);
+        }
+
+        // Update Game
+        function update() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawTreasures();
+            drawClaw();
+            drawScore();
+
+            if (!isReleasing) {
+                clawAngle += speed;
+                if (clawAngle > 70 || clawAngle < -70) {
+                    speed = -speed;
+                }
+            }
+
+            requestAnimationFrame(update);
+        }
+
+        // Event Listener for Claw Release
+        document.addEventListener('keydown', (event) => {
+            if (event.code === 'Space' && !isReleasing) {
+                isReleasing = true;
+                // Placeholder for detecting treasure collection
+                setTimeout(() => {
+                    const treasure = treasures.find(t => t.x > clawX - 50 && t.x < clawX + 50);
+                    if (treasure) {
+                        score += treasure.value;
+                        treasures = treasures.filter(t => t !== treasure);
+                    }
+                    isReleasing = false;
+                }, 1000);  // Simulate grabbing and pulling
+            }
+        });
+
+        update();
+    </script>
+</body>
+</html>
